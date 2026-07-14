@@ -1,0 +1,514 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AqlBot — AI-ассистент в Telegram от INTERPLAY</title>
+<style>
+  /* ==========================================================
+     КАК РЕДАКТИРОВАТЬ ЭТОТ ЛЕНДИНГ
+     1. Весь текст — прямо в HTML ниже, ищите через Ctrl+F.
+     2. Тексты на русском и английском собраны в конце файла,
+        в объекте translations внутри <script> — переключатель
+        RU/EN в шапке берёт слова именно оттуда.
+     3. Цвета — в блоке :root, поменяете один раз — изменится везде.
+     4. Логотип — файл logo.png рядом с этим html. Замените файл
+        на новый с тем же именем, чтобы обновить лого.
+     5. Ссылка на Telegram-бота — переменная BOT_LINK, ищите её
+        через Ctrl+F, встречается в нескольких кнопках.
+     ========================================================== */
+
+  :root{
+    --bg:        #FAF8FF;
+    --bg-soft:   #F1EAFC;
+    --card:      #FFFFFF;
+    --ink:       #1C1730;
+    --ink-dim:   #6E6580;
+    --line:      #E6DBF7;
+    --violet:    #7C4DFF;
+    --violet-dk: #5B2FE0;
+    --pink:      #E96BF0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html{ scroll-behavior: smooth; }
+
+  body{
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Manrope', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    line-height: 1.55;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  h1, h2, h3 { font-family: 'Manrope', sans-serif; font-weight: 800; letter-spacing: -0.02em; }
+  a { color: inherit; text-decoration: none; }
+
+  .wrap{ max-width: 1120px; margin: 0 auto; padding: 0 24px; }
+
+  /* ---------- Header ---------- */
+  header{
+    position: sticky; top: 0; z-index: 50;
+    background: rgba(250,248,255,0.88);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  .nav{ display: flex; align-items: center; justify-content: space-between; padding: 16px 0; }
+  .brand{ display: flex; align-items: center; gap: 10px; }
+  .brand img{ height: 34px; width: auto; display: block; }
+  .brand-name{ font-weight: 800; font-size: 17px; letter-spacing: 0.02em; color: var(--violet-dk); }
+  .brand-sub{ font-size: 11px; color: var(--ink-dim); letter-spacing: 0.08em; }
+
+  .nav-links{ display: flex; gap: 26px; font-size: 14px; color: var(--ink-dim); font-weight: 600; }
+  .nav-links a:hover{ color: var(--ink); }
+
+  .btn{
+    display: inline-flex; align-items: center; justify-content: center;
+    padding: 10px 20px; border-radius: 999px;
+    font-size: 14px; font-weight: 700; cursor: pointer;
+    border: 1px solid transparent;
+    transition: transform .15s ease, box-shadow .15s ease;
+  }
+  .btn:hover{ transform: translateY(-1px); }
+  .btn-primary{
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: #fff;
+    box-shadow: 0 8px 20px -8px rgba(124,77,255,0.55);
+  }
+  .btn-ghost{ border-color: var(--line); color: var(--ink); background: var(--card); }
+  .btn.big{ padding: 15px 28px; font-size: 15px; }
+
+  .lang-switch{
+    display: flex; align-items: center; gap: 2px;
+    border: 1px solid var(--line); border-radius: 999px; padding: 3px;
+    font-size: 12px; font-weight: 700;
+  }
+  .lang-switch button{
+    background: transparent; border: none; color: var(--ink-dim);
+    padding: 6px 12px; border-radius: 999px; cursor: pointer; font: inherit;
+  }
+  .lang-switch button.active{ background: var(--violet); color: #fff; }
+
+  .header-actions{ display: flex; align-items: center; gap: 14px; }
+
+  .offer-icon{
+    display: none;
+    align-items: center; justify-content: center;
+    width: 38px; height: 38px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+    color: var(--violet-dk);
+    background: var(--card);
+    flex-shrink: 0;
+  }
+  .offer-icon svg{ width: 18px; height: 18px; }
+
+  .callcenter{
+    display: flex; align-items: center; gap: 6px;
+    font-size: 13px; font-weight: 700; color: var(--violet-dk);
+    white-space: nowrap;
+  }
+  .callcenter svg{ width: 14px; height: 14px; flex-shrink: 0; }
+
+  @media (max-width: 760px){
+    .nav-links{ display: none; }
+    .callcenter span.cc-label{ display: none; }
+    .offer-icon{ display: inline-flex; }
+  }
+
+  /* ---------- Hero ---------- */
+  .hero{ padding: 110px 0 70px; position: relative; overflow: hidden; }
+  .hero-grid{ display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 40px; align-items: center; }
+  @media (max-width: 900px){ .hero-grid{ grid-template-columns: 1fr; } }
+
+  .eyebrow{
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 13px; font-weight: 700; color: var(--violet-dk);
+    background: var(--bg-soft); border: 1px solid var(--line);
+    padding: 6px 14px; border-radius: 999px; margin-bottom: 22px;
+  }
+  .hero h1{ font-size: clamp(34px, 5vw, 54px); line-height: 1.08; }
+  .hero h1 .accent{
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    -webkit-background-clip: text; background-clip: text; color: transparent;
+  }
+  .hero p.lead{ margin-top: 20px; font-size: 17px; color: var(--ink-dim); max-width: 520px; }
+  .hero-cta{ margin-top: 32px; display: flex; gap: 14px; flex-wrap: wrap; }
+
+  /* Blob signature */
+  .blob-wrap{ position: relative; height: 380px; display: flex; align-items: center; justify-content: center; }
+  .blob{
+    width: 300px; height: 300px;
+    background: linear-gradient(140deg, var(--violet) 10%, var(--pink) 90%);
+    border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%;
+    animation: morph 9s ease-in-out infinite alternate;
+    box-shadow: 0 30px 70px -20px rgba(124,77,255,0.45);
+  }
+  @keyframes morph{
+    0%   { border-radius: 42% 58% 65% 35% / 45% 45% 55% 55%; }
+    50%  { border-radius: 58% 42% 38% 62% / 60% 38% 62% 40%; }
+    100% { border-radius: 48% 52% 55% 45% / 40% 60% 40% 60%; }
+  }
+  .chip{
+    position: absolute;
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 700;
+    box-shadow: 0 12px 30px -12px rgba(28,23,48,0.18);
+    animation: float 5s ease-in-out infinite;
+  }
+  .chip-1{ top: 12%; left: -6%; animation-delay: 0s; }
+  .chip-2{ bottom: 16%; right: -8%; animation-delay: 1.4s; }
+  .chip-3{ top: 60%; left: -12%; animation-delay: 2.6s; }
+  @keyframes float{
+    0%, 100% { transform: translateY(0); }
+    50%      { transform: translateY(-10px); }
+  }
+  @media (max-width: 900px){ .blob-wrap{ height: 260px; } .blob{ width: 210px; height: 210px; } }
+
+  /* ---------- Секции общее ---------- */
+  section{ padding: 84px 0; border-top: 1px solid var(--line); }
+  .section-head{ max-width: 620px; margin-bottom: 46px; }
+  .section-head .tag{ font-size: 13px; font-weight: 700; color: var(--violet); display: block; margin-bottom: 10px; }
+  .section-head h2{ font-size: clamp(24px, 3.6vw, 34px); }
+  .section-head p{ margin-top: 12px; color: var(--ink-dim); font-size: 16px; }
+
+  /* ---------- Возможности ---------- */
+  .features{ display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
+  .feature{
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; padding: 26px;
+  }
+  .feature .icon{
+    width: 42px; height: 42px; border-radius: 12px;
+    background: var(--bg-soft); color: var(--violet-dk);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 20px; margin-bottom: 18px;
+  }
+  .feature h3{ font-size: 16px; margin-bottom: 8px; }
+  .feature p{ font-size: 14px; color: var(--ink-dim); }
+  @media (max-width: 900px){ .features{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 560px){ .features{ grid-template-columns: 1fr; } }
+
+  /* ---------- Как подключить ---------- */
+  .steps{ display: grid; grid-template-columns: repeat(3, 1fr); gap: 28px; }
+  .step{ position: relative; padding-left: 46px; }
+  .step .num{
+    position: absolute; left: 0; top: 0;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--violet), var(--pink));
+    color: #fff; font-weight: 800; font-size: 14px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .step h3{ font-size: 16px; margin-bottom: 8px; }
+  .step p{ font-size: 14px; color: var(--ink-dim); }
+  @media (max-width: 860px){ .steps{ grid-template-columns: 1fr; } }
+
+  .note-box{
+    margin-top: 40px; background: var(--bg-soft); border: 1px solid var(--line);
+    border-radius: 16px; padding: 24px 28px; font-size: 14px; color: var(--ink-dim);
+  }
+  .note-box strong{ color: var(--ink); }
+
+  /* ---------- Тарифы ---------- */
+  .price-table{
+    width: 100%; border-collapse: collapse;
+    background: var(--card); border: 1px solid var(--line); border-radius: 16px; overflow: hidden;
+  }
+  .price-table th, .price-table td{
+    padding: 16px 20px; text-align: left; font-size: 14px; border-bottom: 1px solid var(--line);
+  }
+  .price-table th{
+    background: var(--bg-soft); color: var(--violet-dk); font-size: 13px; font-weight: 700;
+  }
+  .price-table td.value{ font-weight: 800; font-family: 'Manrope', sans-serif; }
+  .price-table tr:last-child td{ border-bottom: none; }
+  .price-note{ margin-top: 18px; font-size: 13px; color: var(--ink-dim); }
+
+  @media (max-width: 640px){
+    .price-table{ font-size: 13px; }
+    .price-table th, .price-table td{ padding: 12px; }
+  }
+
+  /* ---------- CTA ---------- */
+  .cta-box{
+    text-align: center; border-radius: 24px; padding: 70px 24px;
+    background: linear-gradient(135deg, var(--violet) 0%, var(--pink) 100%);
+    color: #fff;
+  }
+  .cta-box h2{ font-size: clamp(24px, 4vw, 32px); margin-bottom: 14px; }
+  .cta-box p{ opacity: 0.92; margin-bottom: 30px; }
+  .cta-box .btn-ghost{ background: rgba(255,255,255,0.15); border-color: rgba(255,255,255,0.4); color: #fff; }
+  .cta-box .btn-primary{ background: #fff; color: var(--violet-dk); box-shadow: none; }
+
+  /* ---------- Подвал ---------- */
+  footer{
+    border-top: 1px solid var(--line); padding: 34px 0;
+    display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 14px;
+    font-size: 13px; color: var(--ink-dim);
+  }
+  .footer-brand{ display: flex; align-items: center; gap: 8px; font-weight: 700; color: var(--ink); }
+  .footer-brand img{ height: 22px; }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap nav">
+    <div class="brand">
+      <img src="logo.jpg" alt="INTERPLAY">
+      <div>
+        <div class="brand-name">AqlBot</div>
+        <div class="brand-sub">by OOO INTERPLAY</div>
+      </div>
+    </div>
+    <nav class="nav-links">
+      <a href="#features" data-i18n="nav_features">Возможности</a>
+      <a href="#how" data-i18n="nav_how">Как подключить</a>
+      <a href="#pricing" data-i18n="nav_pricing">Тарифы</a>
+      <a href="oferta_aqlbot.pdf" target="_blank" data-i18n="nav_offer">Публичная оферта</a>
+    </nav>
+    <div class="header-actions">
+      <a href="oferta_aqlbot.pdf" target="_blank" class="offer-icon" title="Публичная оферта" aria-label="Публичная оферта">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/><line x1="16" y1="13" x2="8" y2="13"/><line x1="16" y1="17" x2="8" y2="17"/><line x1="10" y1="9" x2="8" y2="9"/></svg>
+      </a>
+      <a href="tel:+998712051532" class="callcenter">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.12.9.35 1.79.68 2.63a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.45-1.45a2 2 0 0 1 2.11-.45c.84.33 1.73.56 2.63.68A2 2 0 0 1 22 16.92z"/></svg>
+        <span class="cc-label" data-i18n="cc_label">Колл-центр:</span> +998 71 205 15 32
+      </a>
+      <div class="lang-switch">
+        <button data-lang-btn="ru" class="active" onclick="setLang('ru')">RU</button>
+        <button data-lang-btn="uz" onclick="setLang('uz')">UZ</button>
+      </div>
+      <a href="https://t.me/AI_Aql_bot" target="_blank" class="btn btn-primary" data-i18n="nav_cta">Открыть в Telegram</a>
+    </div>
+  </div>
+</header>
+
+<section class="hero">
+  <div class="wrap hero-grid">
+    <div>
+      <span class="eyebrow" data-i18n="hero_eyebrow">🤖 AI-ассистент в Telegram</span>
+      <h1 data-i18n-html="hero_h1">Спроси что угодно.<br><span class="accent">Получи ответ за секунды.</span></h1>
+      <p class="lead" data-i18n="hero_p">AqlBot отвечает на вопросы 24/7 и создаёт изображения по текстовому описанию — прямо в Telegram, без установки приложений.</p>
+      <div class="hero-cta">
+        <a href="https://t.me/AI_Aql_bot" target="_blank" class="btn btn-primary big" data-i18n="hero_cta1">Открыть в Telegram</a>
+        <a href="#how" class="btn btn-ghost big" data-i18n="hero_cta2">Как подключить</a>
+      </div>
+    </div>
+    <div class="blob-wrap">
+      <div class="blob"></div>
+      <div class="chip chip-1" data-i18n="chip1">💬 Ответ за секунды</div>
+      <div class="chip chip-2" data-i18n="chip2">🖼️ Картинка по описанию</div>
+      <div class="chip chip-3" data-i18n="chip3">🌐 Работает 24/7</div>
+    </div>
+  </div>
+</section>
+
+<section id="features">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag" data-i18n="feat_tag">Возможности</span>
+      <h2 data-i18n="feat_h2">Один бот — вопросы и картинки</h2>
+      <p data-i18n="feat_p">AqlBot берёт на себя рутинные вопросы и визуальные задачи, чтобы вы получали результат сразу.</p>
+    </div>
+    <div class="features">
+      <div class="feature">
+        <div class="icon">💬</div>
+        <h3 data-i18n="feat1_h">Ответы 24/7</h3>
+        <p data-i18n="feat1_p">Задавайте вопросы в любое время — бот отвечает мгновенно, без выходных.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">🎨</div>
+        <h3 data-i18n="feat2_h">Генерация изображений</h3>
+        <p data-i18n="feat2_p">Опишите картинку словами — AqlBot создаст изображение по вашему запросу.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">📲</div>
+        <h3 data-i18n="feat3_h">Без установки приложений</h3>
+        <p data-i18n="feat3_p">Сервис работает прямо в Telegram — ничего дополнительно скачивать не нужно.</p>
+      </div>
+      <div class="feature">
+        <div class="icon">⚡</div>
+        <h3 data-i18n="feat4_h">Быстрое подключение</h3>
+        <p data-i18n="feat4_p">Оформить подписку можно через бота или одной SMS-командой.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag" data-i18n="how_tag">Активация</span>
+      <h2 data-i18n="how_h2">Как подключить AqlBot</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="num">1</div>
+        <h3 data-i18n="step1_h">Перейдите в бота</h3>
+        <p data-i18n="step1_p">Откройте Telegram-бот AqlBot, нажмите «Старт», выберите язык и подтвердите номер телефона.</p>
+      </div>
+      <div class="step">
+        <div class="num">2</div>
+        <h3 data-i18n="step2_h">Подтвердите подпиской</h3>
+        <p data-i18n="step2_p">В ответ на SMS отправьте цифру «1» на номер 8787 — подписка активируется сразу.</p>
+      </div>
+      <div class="step">
+        <div class="num">3</div>
+        <h3 data-i18n="step3_h">Начните общение</h3>
+        <p data-i18n="step3_p">Одна подписка даёт 3 запроса. Дополнительные запросы можно докупить прямо в боте.</p>
+      </div>
+    </div>
+
+    <div class="note-box">
+      <div data-i18n="note1"><strong>Подключение через SMS:</strong> отправьте «АА» на короткий номер 8787 — в ответ придёт SMS с условиями услуги и предложением подтвердить подписку цифрой «1».</div>
+      <br>
+      <div data-i18n="note2"><strong>Доп. запросы:</strong> кодовое слово «СС» на номер 8786 — один запрос за 250 сум с НДС; кодовое слово «КК» на номер 8787 — один запрос за 750 сум с НДС.</div>
+      <br>
+      <div data-i18n="note3"><strong>Отключение:</strong> отправьте STOP на номер 8787, либо наберите USSD-код *225# (доступно для абонентов OOO UNITEL «тм Beeline») для отмены всех подписок сразу.</div>
+    </div>
+  </div>
+</section>
+
+<section id="pricing">
+  <div class="wrap">
+    <div class="section-head">
+      <span class="tag" data-i18n="price_tag">Тарифы</span>
+      <h2 data-i18n="price_h2">Стоимость услуги</h2>
+      <p data-i18n="price_p">Цены указаны с учётом НДС, тарификация — на коротких номерах 8787 и 8786 (SMS).</p>
+    </div>
+
+    <table class="price-table">
+      <thead>
+        <tr>
+          <th data-i18n="th_service">Услуга</th>
+          <th data-i18n="th_prepaid">Стоимость</th>
+          <th data-i18n="th_number">Номер</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td data-i18n="row1_name">Подписка / разовый запрос, в день</td>
+          <td class="value">750 сум</td>
+          <td>8787 (SMS)</td>
+        </tr>
+        <tr>
+          <td data-i18n="row2_name">Дополнительный запрос</td>
+          <td class="value">250 сум</td>
+          <td>8786 (SMS)</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="price-note" data-i18n="price_note">Одна подписка включает 3 запроса. После их использования доступна докупка дополнительных запросов пакетами по 3 и по 1.</p>
+  </div>
+</section>
+
+<section id="cta" style="border-top:none; padding-top:0;">
+  <div class="wrap">
+    <div class="cta-box">
+      <h2 data-i18n="cta_h2">Готовы попробовать AqlBot?</h2>
+      <p data-i18n="cta_p">Первая подписка — 3 запроса на любые вопросы и изображения.</p>
+      <div style="display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+        <a href="https://t.me/AI_Aql_bot" target="_blank" class="btn btn-primary big" data-i18n="cta_btn">Открыть в Telegram</a>
+        <a href="#pricing" class="btn btn-ghost big" data-i18n="cta_btn2">Смотреть тарифы</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<footer class="wrap">
+  <div class="footer-brand"><img src="logo.jpg" alt="INTERPLAY"> OOO INTERPLAY</div>
+  <div data-i18n="footer_rights">© 2026 OOO INTERPLAY. Все права защищены.</div>
+</footer>
+
+<script>
+  const translations = {
+    nav_features: { ru: "Возможности", uz: "Imkoniyatlar" },
+    nav_how:      { ru: "Как подключить", uz: "Qanday ulanish mumkin" },
+    nav_pricing:  { ru: "Тарифы", uz: "Tariflar" },
+    nav_offer:    { ru: "Публичная оферта", uz: "Ommaviy oferta" },
+    nav_cta:      { ru: "Открыть в Telegram", uz: "Telegram'da ochish" },
+
+    cc_label: { ru: "Колл-центр:", uz: "Call-markaz:" },
+
+    hero_eyebrow: { ru: "🤖 AI-ассистент в Telegram", uz: "🤖 Telegram'dagi AI-yordamchi" },
+    hero_p:       { ru: "AqlBot отвечает на вопросы 24/7 и создаёт изображения по текстовому описанию — прямо в Telegram, без установки приложений.", uz: "AqlBot savollaringizga 24/7 rejimida javob beradi va matnli tavsif asosida rasm yaratadi — to'g'ridan-to'g'ri Telegram'da, ilova o'rnatmasdan." },
+    hero_cta1:    { ru: "Открыть в Telegram", uz: "Telegram'da ochish" },
+    hero_cta2:    { ru: "Как подключить", uz: "Qanday ulanish mumkin" },
+
+    chip1: { ru: "💬 Ответ за секунды", uz: "💬 Bir necha soniyada javob" },
+    chip2: { ru: "🖼️ Картинка по описанию", uz: "🖼️ Tavsif asosida rasm" },
+    chip3: { ru: "🌐 Работает 24/7", uz: "🌐 24/7 ishlaydi" },
+
+    feat_tag: { ru: "Возможности", uz: "Imkoniyatlar" },
+    feat_h2:  { ru: "Один бот — вопросы и картинки", uz: "Bitta bot — savollar va rasmlar" },
+    feat_p:   { ru: "AqlBot берёт на себя рутинные вопросы и визуальные задачи, чтобы вы получали результат сразу.", uz: "AqlBot kundalik savollar va vizual vazifalarni o'z zimmasiga oladi — natijani darhol olasiz." },
+    feat1_h: { ru: "Ответы 24/7", uz: "24/7 javoblar" },
+    feat1_p: { ru: "Задавайте вопросы в любое время — бот отвечает мгновенно, без выходных.", uz: "Istalgan vaqtda savol bering — bot dam olish kunlarisiz, zudlik bilan javob beradi." },
+    feat2_h: { ru: "Генерация изображений", uz: "Rasm yaratish" },
+    feat2_p: { ru: "Опишите картинку словами — AqlBot создаст изображение по вашему запросу.", uz: "Rasmni so'zlar bilan tasvirlab bering — AqlBot so'rovingiz asosida rasm yaratadi." },
+    feat3_h: { ru: "Без установки приложений", uz: "Ilova o'rnatish shart emas" },
+    feat3_p: { ru: "Сервис работает прямо в Telegram — ничего дополнительно скачивать не нужно.", uz: "Xizmat to'g'ridan-to'g'ri Telegram'da ishlaydi — qo'shimcha hech narsa yuklab olish shart emas." },
+    feat4_h: { ru: "Быстрое подключение", uz: "Tezkor ulanish" },
+    feat4_p: { ru: "Оформить подписку можно через бота или одной SMS-командой.", uz: "Obunani bot orqali yoki bitta SMS-buyruq bilan rasmiylashtirish mumkin." },
+
+    how_tag: { ru: "Активация", uz: "Faollashtirish" },
+    how_h2:  { ru: "Как подключить AqlBot", uz: "AqlBot'ni qanday ulash mumkin" },
+    step1_h: { ru: "Перейдите в бота", uz: "Botga o'ting" },
+    step1_p: { ru: "Откройте Telegram-бот AqlBot, нажмите «Старт», выберите язык и подтвердите номер телефона.", uz: "AqlBot Telegram-botini oching, «Start» tugmasini bosing, tilni tanlang va telefon raqamingizni tasdiqlang." },
+    step2_h: { ru: "Подтвердите подпиской", uz: "Obunani tasdiqlang" },
+    step2_p: { ru: "В ответ на SMS отправьте цифру «1» на номер 8787 — подписка активируется сразу.", uz: "SMS-ga javoban 8787 raqamiga «1» ni yuboring — obuna darhol faollashadi." },
+    step3_h: { ru: "Начните общение", uz: "Muloqotni boshlang" },
+    step3_p: { ru: "Одна подписка даёт 3 запроса. Дополнительные запросы можно докупить прямо в боте.", uz: "Bitta obuna 3 ta so'rov beradi. Qo'shimcha so'rovlarni bot orqali sotib olishingiz mumkin." },
+
+    note1: { ru: "<strong>Подключение через SMS:</strong> отправьте «АА» на короткий номер 8787 — в ответ придёт SMS с условиями услуги и предложением подтвердить подписку цифрой «1».", uz: "<strong>SMS orqali ulanish:</strong> 8787 qisqa raqamiga «АА» yuboring — javobida xizmat shartlari va obunani «1» raqami bilan tasdiqlash taklifi keladi." },
+    note2: { ru: "<strong>Доп. запросы:</strong> кодовое слово «СС» на номер 8786 — один запрос за 250 сум с НДС; кодовое слово «КК» на номер 8787 — один запрос за 750 сум с НДС.", uz: "<strong>Qo'shimcha so'rovlar:</strong> 8786 raqamiga «СС» kod so'zi — QQS bilan 250 so'mga bitta so'rov; 8787 raqamiga «КК» kod so'zi — QQS bilan 750 so'mga bitta so'rov." },
+    note3: { ru: "<strong>Отключение:</strong> отправьте STOP на номер 8787, либо наберите USSD-код *225# (доступно для абонентов OOO UNITEL «тм Beeline») для отмены всех подписок сразу.", uz: "<strong>O'chirish:</strong> 8787 raqamiga STOP yuboring yoki barcha obunalarni bir vaqtda bekor qilish uchun *225# USSD-kodini tering (\"UNITEL\" MChJ, \"Beeline\" savdo belgisi abonentlari uchun mavjud)." },
+
+    price_tag:  { ru: "Тарифы", uz: "Tariflar" },
+    price_h2:   { ru: "Стоимость услуги", uz: "Xizmat narxi" },
+    price_p:    { ru: "Цены указаны с учётом НДС, тарификация — на коротких номерах 8787 и 8786 (SMS).", uz: "Narxlar QQSni hisobga olgan holda ko'rsatilgan; tariflash 8787 va 8786 (SMS) qisqa raqamlarida amalga oshiriladi." },
+    th_service: { ru: "Услуга", uz: "Xizmat" },
+    th_prepaid: { ru: "Стоимость", uz: "Narxi" },
+    th_number:  { ru: "Номер", uz: "Raqam" },
+    row1_name:  { ru: "Подписка / разовый запрос, в день", uz: "Obuna / bir martalik so'rov, kuniga" },
+    row2_name:  { ru: "Дополнительный запрос", uz: "Qo'shimcha so'rov" },
+    price_note: { ru: "Одна подписка включает 3 запроса. После их использования доступна докупка дополнительных запросов пакетами по 3 и по 1.", uz: "Bitta obunaga 3 ta so'rov kiradi. Ular tugagach, 3 va 1 talik paketlarda qo'shimcha so'rovlar sotib olish mumkin." },
+
+    cta_h2:   { ru: "Готовы попробовать AqlBot?", uz: "AqlBot'ni sinab ko'rishga tayyormisiz?" },
+    cta_p:    { ru: "Первая подписка — 3 запроса на любые вопросы и изображения.", uz: "Birinchi obuna — istalgan savol va rasmlar uchun 3 ta so'rov." },
+    cta_btn:  { ru: "Открыть в Telegram", uz: "Telegram'da ochish" },
+    cta_btn2: { ru: "Смотреть тарифы", uz: "Tariflarni ko'rish" },
+
+    footer_rights: { ru: "© 2026 OOO INTERPLAY. Все права защищены.", uz: "© 2026 OOO INTERPLAY. Barcha huquqlar himoyalangan." }
+  };
+
+  const heroH1 = {
+    ru: 'Спроси что угодно.<br><span class="accent">Получи ответ за секунды.</span>',
+    uz: 'Xohlagan narsangizni so\'rang.<br><span class="accent">Bir necha soniyada javob oling.</span>'
+  };
+
+  function setLang(lang){
+    document.querySelectorAll('[data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[key] && translations[key][lang]) el.textContent = translations[key][lang];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el => {
+      const key = el.getAttribute('data-i18n-html');
+      if (key === 'hero_h1') el.innerHTML = heroH1[lang];
+    });
+    document.querySelectorAll('.note-box [data-i18n]').forEach(el => {
+      const key = el.getAttribute('data-i18n');
+      if (translations[key] && translations[key][lang]) el.innerHTML = translations[key][lang];
+    });
+    document.querySelectorAll('[data-lang-btn]').forEach(btn => {
+      btn.classList.toggle('active', btn.getAttribute('data-lang-btn') === lang);
+    });
+    document.documentElement.lang = lang;
+  }
+</script>
+</body>
+</html>
